@@ -1,0 +1,2 @@
+include ':google-analytics-dispatcher'
+rootProject.name='android-google-analytics-dispatcher'

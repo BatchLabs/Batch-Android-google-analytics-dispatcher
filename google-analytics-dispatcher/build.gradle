@@ -1,0 +1,59 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion "29.0.2"
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    flavorDimensions "target-backend"
+
+    productFlavors {
+        production {
+            dimension "target-backend"
+        }
+
+        staging {
+            dimension "target-backend"
+        }
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+
+}
+
+dependencies {
+    api(name:'Batch', ext:'aar')
+    //api 'com.batch.android:batch-sdk:[1.15,)' TODO remove aar and use maven repo after 1.15 release
+    api 'androidx.annotation:annotation:1.1.0'
+    api 'com.google.android.gms:play-services-analytics:17.0.0'
+
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'androidx.test.ext:junit:1.1.1'
+    testImplementation 'org.mockito:mockito-core:2.25.1'
+    testImplementation 'org.robolectric:robolectric:4.3'
+    testImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
+    // We use PowerMock to mock GoogleAnalytics in tests
+    testImplementation 'org.powermock:powermock-module-junit4:2.0.2'
+    testImplementation 'org.powermock:powermock-module-junit4-rule:2.0.2'
+    testImplementation 'org.powermock:powermock-api-mockito2:2.0.2'
+    testImplementation 'org.powermock:powermock-classloading-xstream:2.0.2'
+}
