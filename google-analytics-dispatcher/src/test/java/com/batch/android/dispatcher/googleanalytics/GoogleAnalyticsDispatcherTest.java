@@ -43,13 +43,15 @@ public class GoogleAnalyticsDispatcherTest {
 
     @Rule
     public PowerMockRule rule = new PowerMockRule();
+    private Context context;
+    private GoogleAnalytics googleAnalytics;
     private Tracker tracker;
     private GoogleAnalyticsDispatcher googleAnalyticsDispatcher;
 
     @Before
     public void setUp() {
-        Context context = PowerMockito.mock(Context.class);
-        GoogleAnalytics googleAnalytics = PowerMockito.mock(GoogleAnalytics.class);
+        context = PowerMockito.mock(Context.class);
+        googleAnalytics = PowerMockito.mock(GoogleAnalytics.class);
         tracker = PowerMockito.mock(Tracker.class);
 
         PowerMockito.mockStatic(GoogleAnalytics.class);
@@ -62,6 +64,17 @@ public class GoogleAnalyticsDispatcherTest {
     }
 
     @Test
+    public void testDispatcherSetup() {
+        GoogleAnalyticsDispatcher dispatcher = new GoogleAnalyticsDispatcher(context);
+        dispatcher.setTrackingId(987);
+        Mockito.verify(googleAnalytics).newTracker(987);
+
+        dispatcher = new GoogleAnalyticsDispatcher(context);
+        dispatcher.setTrackingId("JeSuisUnTest");
+        Mockito.verify(googleAnalytics).newTracker("JeSuisUnTest");
+    }
+
+    @Test
     public void testNotificationNoData() {
 
         TestEventPayload payload = new TestEventPayload(null,
@@ -70,14 +83,14 @@ public class GoogleAnalyticsDispatcherTest {
 
         Map<String, String> expected = new HashMap<String, String>() {{
             put("&t", "event"); // Type
-            put("&ea", "batch_notification_receive"); // Action
+            put("&ea", "batch_notification_display"); // Action
             put("&ec", "push"); // Category
             put("&el", "batch"); // Label
             put("&cs", "batch"); // Campaign Source
             put("&cm", "push"); // Campaign Medium
         }};
 
-        googleAnalyticsDispatcher.dispatchEvent(Batch.EventDispatcher.Type.NOTIFICATION_RECEIVE, payload);
+        googleAnalyticsDispatcher.dispatchEvent(Batch.EventDispatcher.Type.NOTIFICATION_DISPLAY, payload);
         Mockito.verify(tracker).send(mapEq(expected));
     }
 
@@ -90,7 +103,7 @@ public class GoogleAnalyticsDispatcherTest {
 
         Map<String, String> expected = new HashMap<String, String>() {{
             put("&t", "event"); // Type
-            put("&ea", "batch_notification_receive"); // Action
+            put("&ea", "batch_notification_display"); // Action
             put("&ec", "push"); // Category
             put("&el", "batch"); // Label
             put("&cn", "yoloswag"); // Campaign name
@@ -99,7 +112,7 @@ public class GoogleAnalyticsDispatcherTest {
             put("&cc", "button1"); // Campaign Content
         }};
 
-        googleAnalyticsDispatcher.dispatchEvent(Batch.EventDispatcher.Type.NOTIFICATION_RECEIVE, payload);
+        googleAnalyticsDispatcher.dispatchEvent(Batch.EventDispatcher.Type.NOTIFICATION_DISPLAY, payload);
         Mockito.verify(tracker).send(mapEq(expected));
     }
 
@@ -112,7 +125,7 @@ public class GoogleAnalyticsDispatcherTest {
 
         Map<String, String> expected = new HashMap<String, String>() {{
             put("&t", "event"); // Type
-            put("&ea", "batch_notification_receive"); // Action
+            put("&ea", "batch_notification_display"); // Action
             put("&ec", "push"); // Category
             put("&el", "batch"); // Label
             put("&cn", "yoloswag"); // Campaign name
@@ -121,7 +134,7 @@ public class GoogleAnalyticsDispatcherTest {
             put("&cc", "button1"); // Campaign Content
         }};
 
-        googleAnalyticsDispatcher.dispatchEvent(Batch.EventDispatcher.Type.NOTIFICATION_RECEIVE, payload);
+        googleAnalyticsDispatcher.dispatchEvent(Batch.EventDispatcher.Type.NOTIFICATION_DISPLAY, payload);
         Mockito.verify(tracker).send(mapEq(expected));
     }
 
@@ -183,7 +196,7 @@ public class GoogleAnalyticsDispatcherTest {
 
         Map<String, String> expected = new HashMap<String, String>() {{
             put("&t", "event"); // Type
-            put("&ea", "batch_notification_receive"); // Action
+            put("&ea", "batch_notification_display"); // Action
             put("&ec", "push"); // Category
             put("&el", "batch"); // Label
             put("&cn", "heinhein"); // Campaign name
@@ -191,7 +204,7 @@ public class GoogleAnalyticsDispatcherTest {
             put("&cm", "654987"); // Campaign Medium
         }};
 
-        googleAnalyticsDispatcher.dispatchEvent(Batch.EventDispatcher.Type.NOTIFICATION_RECEIVE, payload);
+        googleAnalyticsDispatcher.dispatchEvent(Batch.EventDispatcher.Type.NOTIFICATION_DISPLAY, payload);
         Mockito.verify(tracker).send(mapEq(expected));
     }
 
@@ -276,14 +289,13 @@ public class GoogleAnalyticsDispatcherTest {
             put("&el", "batch"); // Label
             put("&cs", "batch"); // Campaign Source
             put("&cm", "in-app"); // Campaign Medium
-            put("batch_tracking_id", null);
         }};
 
-        googleAnalyticsDispatcher.dispatchEvent(Batch.EventDispatcher.Type.IN_APP_SHOW, payload);
+        googleAnalyticsDispatcher.dispatchEvent(Batch.EventDispatcher.Type.MESSAGING_SHOW, payload);
         Mockito.verify(tracker).send(mapEq(expected));
     }
 
-    /*
+
     @Test
     public void testInAppShowUppercaseQueryVars() {
 
@@ -291,15 +303,18 @@ public class GoogleAnalyticsDispatcherTest {
                 "https://batch.com?uTm_ConTENT=jesuisuncontent",
                 new Bundle());
 
-        Bundle expected = new Bundle();
-        expected.putString("batch_tracking_id", null);
-        expected.putString("medium", "in-app");
-        expected.putString("source", "batch");
-        expected.putString("campaign", null);
-        expected.putString("content", "jesuisuncontent");
+        Map<String, String> expected = new HashMap<String, String>() {{
+            put("&t", "event"); // Type
+            put("&ea", "batch_in_app_show"); // Action
+            put("&ec", "in-app"); // Category
+            put("&el", "batch"); // Label
+            put("&cs", "batch"); // Campaign Source
+            put("&cm", "in-app"); // Campaign Medium
+            put("&cc", "jesuisuncontent"); // Campaign Content
+        }};
 
-        googleAnalyticsDispatcher.dispatchEvent(Batch.EventDispatcher.Type.IN_APP_SHOW, payload);
-        Mockito.verify(tracker).send(Mockito.eq("batch_in_app_show"), mapEq(expected));
+        googleAnalyticsDispatcher.dispatchEvent(Batch.EventDispatcher.Type.MESSAGING_SHOW, payload);
+        Mockito.verify(tracker).send(mapEq(expected));
     }
 
     @Test
@@ -309,15 +324,18 @@ public class GoogleAnalyticsDispatcherTest {
                 "https://batch.com#UtM_CoNtEnT=jesuisuncontent",
                 new Bundle());
 
-        Bundle expected = new Bundle();
-        expected.putString("batch_tracking_id", null);
-        expected.putString("medium", "in-app");
-        expected.putString("source", "batch");
-        expected.putString("campaign", null);
-        expected.putString("content", "jesuisuncontent");
+        Map<String, String> expected = new HashMap<String, String>() {{
+            put("&t", "event"); // Type
+            put("&ea", "batch_in_app_show"); // Action
+            put("&ec", "in-app"); // Category
+            put("&el", "batch"); // Label
+            put("&cs", "batch"); // Campaign Source
+            put("&cm", "in-app"); // Campaign Medium
+            put("&cc", "jesuisuncontent"); // Campaign Content
+        }};
 
-        googleAnalyticsDispatcher.dispatchEvent(Batch.EventDispatcher.Type.IN_APP_SHOW, payload);
-        Mockito.verify(tracker).send(Mockito.eq("batch_in_app_show"), mapEq(expected));
+        googleAnalyticsDispatcher.dispatchEvent(Batch.EventDispatcher.Type.MESSAGING_SHOW, payload);
+        Mockito.verify(tracker).send(mapEq(expected));
     }
 
     @Test
@@ -327,14 +345,19 @@ public class GoogleAnalyticsDispatcherTest {
                 null,
                 new Bundle());
 
-        Bundle expected = new Bundle();
-        expected.putString("medium", "in-app");
-        expected.putString("source", "batch");
-        expected.putString("campaign", "jesuisunid");
-        expected.putString("batch_tracking_id", "jesuisunid");
+        Map<String, String> expected = new HashMap<String, String>() {{
+            put("&t", "event"); // Type
+            put("&ea", "batch_in_app_click"); // Action
+            put("&ec", "in-app"); // Category
+            put("&el", "batch"); // Label
+            put("&cn", "jesuisunid"); // Campaign name
+            put("&cs", "batch"); // Campaign Source
+            put("&cm", "in-app"); // Campaign Medium
+            put("batch_tracking_id", "jesuisunid");
+        }};
 
-        googleAnalyticsDispatcher.dispatchEvent(Batch.EventDispatcher.Type.IN_APP_GLOBAL_TAP, payload);
-        Mockito.verify(tracker).send(Mockito.eq("batch_in_app_global_tap"), mapEq(expected));
+        googleAnalyticsDispatcher.dispatchEvent(Batch.EventDispatcher.Type.MESSAGING_CLICK, payload);
+        Mockito.verify(tracker).send(mapEq(expected));
     }
 
     @Test
@@ -344,15 +367,20 @@ public class GoogleAnalyticsDispatcherTest {
                 "https://batch.com?utm_content=jesuisuncontent",
                 new Bundle());
 
-        Bundle expected = new Bundle();
-        expected.putString("medium", "in-app");
-        expected.putString("source", "batch");
-        expected.putString("campaign", "jesuisunid");
-        expected.putString("batch_tracking_id", "jesuisunid");
-        expected.putString("content", "jesuisuncontent");
+        Map<String, String> expected = new HashMap<String, String>() {{
+            put("&t", "event"); // Type
+            put("&ea", "batch_in_app_close"); // Action
+            put("&ec", "in-app"); // Category
+            put("&el", "batch"); // Label
+            put("&cn", "jesuisunid"); // Campaign name
+            put("&cs", "batch"); // Campaign Source
+            put("&cm", "in-app"); // Campaign Medium
+            put("&cc", "jesuisuncontent"); // Campaign Content
+            put("batch_tracking_id", "jesuisunid");
+        }};
 
-        googleAnalyticsDispatcher.dispatchEvent(Batch.EventDispatcher.Type.IN_APP_CLOSE, payload);
-        Mockito.verify(tracker).send(Mockito.eq("batch_in_app_close"), mapEq(expected));
+        googleAnalyticsDispatcher.dispatchEvent(Batch.EventDispatcher.Type.MESSAGING_CLOSE, payload);
+        Mockito.verify(tracker).send(mapEq(expected));
     }
 
     @Test
@@ -362,15 +390,20 @@ public class GoogleAnalyticsDispatcherTest {
                 "https://batch.com#utm_content=jesuisuncontent00587",
                 new Bundle());
 
-        Bundle expected = new Bundle();
-        expected.putString("medium", "in-app");
-        expected.putString("source", "batch");
-        expected.putString("campaign", "jesuisunid");
-        expected.putString("batch_tracking_id", "jesuisunid");
-        expected.putString("content", "jesuisuncontent00587");
+        Map<String, String> expected = new HashMap<String, String>() {{
+            put("&t", "event"); // Type
+            put("&ea", "batch_in_app_show"); // Action
+            put("&ec", "in-app"); // Category
+            put("&el", "batch"); // Label
+            put("&cn", "jesuisunid"); // Campaign name
+            put("&cs", "batch"); // Campaign Source
+            put("&cm", "in-app"); // Campaign Medium
+            put("&cc", "jesuisuncontent00587"); // Campaign Content
+            put("batch_tracking_id", "jesuisunid");
+        }};
 
-        googleAnalyticsDispatcher.dispatchEvent(Batch.EventDispatcher.Type.IN_APP_DISMISS, payload);
-        Mockito.verify(tracker).send(Mockito.eq("batch_in_app_dismiss"), mapEq(expected));
+        googleAnalyticsDispatcher.dispatchEvent(Batch.EventDispatcher.Type.MESSAGING_SHOW, payload);
+        Mockito.verify(tracker).send(mapEq(expected));
     }
 
     @Test
@@ -380,15 +413,20 @@ public class GoogleAnalyticsDispatcherTest {
                 "https://batch.com?utm_content=jesuisuncontent002#utm_content=jesuisuncontent015",
                 new Bundle());
 
-        Bundle expected = new Bundle();
-        expected.putString("medium", "in-app");
-        expected.putString("source", "batch");
-        expected.putString("campaign", "jesuisunid");
-        expected.putString("batch_tracking_id", "jesuisunid");
-        expected.putString("content", "jesuisuncontent002");
+        Map<String, String> expected = new HashMap<String, String>() {{
+            put("&t", "event"); // Type
+            put("&ea", "batch_in_app_auto_close"); // Action
+            put("&ec", "in-app"); // Category
+            put("&el", "batch"); // Label
+            put("&cn", "jesuisunid"); // Campaign name
+            put("&cs", "batch"); // Campaign Source
+            put("&cm", "in-app"); // Campaign Medium
+            put("&cc", "jesuisuncontent002"); // Campaign Content
+            put("batch_tracking_id", "jesuisunid");
+        }};
 
-        googleAnalyticsDispatcher.dispatchEvent(Batch.EventDispatcher.Type.IN_APP_AUTO_CLOSE, payload);
-        Mockito.verify(tracker).send(Mockito.eq("batch_in_app_auto_close"), mapEq(expected));
+        googleAnalyticsDispatcher.dispatchEvent(Batch.EventDispatcher.Type.MESSAGING_AUTO_CLOSE, payload);
+        Mockito.verify(tracker).send(mapEq(expected));
     }
 
     @Test
@@ -398,17 +436,19 @@ public class GoogleAnalyticsDispatcherTest {
                 "https://batch.com?utm_content=jesuisuncontent",
                 new Bundle());
 
-        Bundle expected = new Bundle();
-        expected.putString("medium", "in-app");
-        expected.putString("source", "batch");
-        expected.putString("campaign", null);
-        expected.putString("batch_tracking_id", null);
-        expected.putString("content", "jesuisuncontent");
+        Map<String, String> expected = new HashMap<String, String>() {{
+            put("&t", "event"); // Type
+            put("&ea", "batch_in_app_click"); // Action
+            put("&ec", "in-app"); // Category
+            put("&el", "batch"); // Label
+            put("&cs", "batch"); // Campaign Source
+            put("&cm", "in-app"); // Campaign Medium
+            put("&cc", "jesuisuncontent"); // Campaign Content
+        }};
 
-        googleAnalyticsDispatcher.dispatchEvent(Batch.EventDispatcher.Type.IN_APP_CLICK, payload);
-        Mockito.verify(tracker).send(Mockito.eq("batch_in_app_click"), mapEq(expected));
+        googleAnalyticsDispatcher.dispatchEvent(Batch.EventDispatcher.Type.MESSAGING_CLICK, payload);
+        Mockito.verify(tracker).send(mapEq(expected));
     }
-     */
 
     private static class TestEventPayload implements Batch.EventDispatcher.Payload {
 
@@ -455,7 +495,7 @@ public class GoogleAnalyticsDispatcherTest {
 
         @Nullable
         @Override
-        public BatchMessage getInAppPayload()
+        public BatchMessage getMessagingPayload()
         {
             return null;
         }

@@ -2,12 +2,9 @@ package com.batch.android.dispatcher.googleanalytics;
 
 import android.content.Context;
 import android.net.Uri;
-import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Log;
 
-import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.XmlRes;
 
 import com.batch.android.Batch;
 import com.batch.android.BatchEventDispatcher;
@@ -36,22 +33,15 @@ public class GoogleAnalyticsDispatcher implements BatchEventDispatcher {
     private static final String UTM_CONTENT = "utm_content";
 
     /**
-     * Key used to dispatch the Batch tracking Id on Google Analytics
-     */
-    private static final String BATCH_TRACKING_ID = "batch_tracking_id";
-
-    /**
      * Event name used when logging on Google Analytics
      */
-    private static final String NOTIFICATION_RECEIVE_NAME = "batch_notification_receive";
+    private static final String NOTIFICATION_DISPLAY_NAME = "batch_notification_display";
     private static final String NOTIFICATION_OPEN_NAME = "batch_notification_open";
     private static final String NOTIFICATION_DISMISS_NAME = "batch_notification_dismiss";
-    private static final String IN_APP_SHOW_NAME = "batch_in_app_show";
-    private static final String IN_APP_DISMISS_NAME = "batch_in_app_dismiss";
-    private static final String IN_APP_CLOSE_NAME = "batch_in_app_close";
-    private static final String IN_APP_AUTO_CLOSE_NAME = "batch_in_app_auto_close";
-    private static final String IN_APP_GLOBAL_TAP_NAME = "batch_in_app_global_tap";
-    private static final String IN_APP_CLICK_NAME = "batch_in_app_click";
+    private static final String MESSAGING_SHOW_NAME = "batch_in_app_show";
+    private static final String MESSAGING_CLOSE_NAME = "batch_in_app_close";
+    private static final String MESSAGING_AUTO_CLOSE_NAME = "batch_in_app_auto_close";
+    private static final String MESSAGING_CLICK_NAME = "batch_in_app_click";
     private static final String UNKNOWN_EVENT_NAME = "batch_unknown";
 
     private GoogleAnalytics googleAnalytics;
@@ -62,18 +52,36 @@ public class GoogleAnalyticsDispatcher implements BatchEventDispatcher {
         this.tracker = null;
     }
 
-    public void setTrackingId(String trackingId) {
+    public static void setTrackingId(Context context, @XmlRes int trackingId)
+    {
+        GoogleAnalyticsDispatcher dispatcher = GoogleAnalyticsRegistrar.getInstance(context);
+        dispatcher.setTrackingId(trackingId);
+    }
+
+    public static void setTrackingId(Context context, String trackingId)
+    {
+        GoogleAnalyticsDispatcher dispatcher = GoogleAnalyticsRegistrar.getInstance(context);
+        dispatcher.setTrackingId(trackingId);
+    }
+
+    void setTrackingId(String trackingId) {
         if (tracker == null) {
             tracker = googleAnalytics.newTracker(trackingId);
         }
     }
 
-    public void setTrackingId(@IdRes int trackingId) {
+    void setTrackingId(@XmlRes int trackingId) {
         if (tracker == null) {
             tracker = googleAnalytics.newTracker(trackingId);
         }
     }
 
+    /**
+     * Callback when a new event just happened in the Batch SDK.
+     *
+     * @param type The type of the event
+     * @param payload The payload associated with the event
+     */
     @Override
     public void dispatchEvent(@NonNull Batch.EventDispatcher.Type type, @NonNull Batch.EventDispatcher.Payload payload) {
         if (tracker == null) {
@@ -84,9 +92,9 @@ public class GoogleAnalyticsDispatcher implements BatchEventDispatcher {
         builder.setLabel("batch");
         builder.setAction(getGoogleAnalyticsEventName(type));
 
-        if (type.isNotification()) {
+        if (type.isNotificationEvent()) {
             buildNotificationParams(builder, payload);
-        } else if (type.isInApp()) {
+        } else if (type.isMessagingEvent()) {
             buildInAppParams(builder, payload);
         }
 
@@ -99,7 +107,7 @@ public class GoogleAnalyticsDispatcher implements BatchEventDispatcher {
         builder.setCampaignName(payload.getTrackingId());
         builder.setCampaignSource("batch");
         builder.setCampaignMedium("in-app");
-        builder.set(BATCH_TRACKING_ID, payload.getTrackingId());
+        builder.setTrackingId(payload.getTrackingId());
 
         String deeplink = payload.getDeeplink();
         if (deeplink != null) {
@@ -113,7 +121,7 @@ public class GoogleAnalyticsDispatcher implements BatchEventDispatcher {
                 builder.setCampaignContent(fragments.get(UTM_CONTENT));
             }
             // Copy from query parameters of the deeplink
-            builder.setCampaignContent(uri.getQueryParameter(UTM_CONTENT));
+            builder.setCampaignContent(getQueryParameterCaseInsensitive(uri, UTM_CONTENT));
         }
 
         // Load from custom payload
@@ -182,24 +190,20 @@ public class GoogleAnalyticsDispatcher implements BatchEventDispatcher {
 
     private static String getGoogleAnalyticsEventName(Batch.EventDispatcher.Type type) {
         switch (type) {
-            case NOTIFICATION_RECEIVE:
-                return NOTIFICATION_RECEIVE_NAME;
+            case NOTIFICATION_DISPLAY:
+                return NOTIFICATION_DISPLAY_NAME;
             case NOTIFICATION_OPEN:
                 return NOTIFICATION_OPEN_NAME;
             case NOTIFICATION_DISMISS:
                 return NOTIFICATION_DISMISS_NAME;
-            case IN_APP_SHOW:
-                return IN_APP_SHOW_NAME;
-            case IN_APP_DISMISS:
-                return IN_APP_DISMISS_NAME;
-            case IN_APP_CLOSE:
-                return IN_APP_CLOSE_NAME;
-            case IN_APP_AUTO_CLOSE:
-                return IN_APP_AUTO_CLOSE_NAME;
-            case IN_APP_GLOBAL_TAP:
-                return IN_APP_GLOBAL_TAP_NAME;
-            case IN_APP_CLICK:
-                return IN_APP_CLICK_NAME;
+            case MESSAGING_SHOW:
+                return MESSAGING_SHOW_NAME;
+            case MESSAGING_CLOSE:
+                return MESSAGING_CLOSE_NAME;
+            case MESSAGING_AUTO_CLOSE:
+                return MESSAGING_AUTO_CLOSE_NAME;
+            case MESSAGING_CLICK:
+                return MESSAGING_CLICK_NAME;
         }
         return UNKNOWN_EVENT_NAME;
     }

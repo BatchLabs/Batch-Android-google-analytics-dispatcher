@@ -19,16 +19,26 @@ public class GoogleAnalyticsRegistrar implements DispatcherRegistrar {
 
     /**
      * Singleton accessor
-     * @param context
-     * @return
+     * @param context Context used to initialize the dispatcher
+     * @return Dispatcher instance
      */
-    @Override
-    public BatchEventDispatcher getDispatcher(Context context)
+    static GoogleAnalyticsDispatcher getInstance(Context context)
     {
         if (instance == null) {
             instance = new GoogleAnalyticsDispatcher(context);
         }
         return instance;
+    }
+
+    /**
+     * Singleton accessor
+     * @param context Context used to initialize the dispatcher
+     * @return Dispatcher instance
+     */
+    @Override
+    public BatchEventDispatcher getDispatcher(Context context)
+    {
+        return getInstance(context);
     }
 
 }

@@ -5,6 +5,11 @@ import com.google.android.gms.analytics.HitBuilders;
 public class BatchEventBuilder extends HitBuilders.EventBuilder {
 
     /**
+     * Key used to dispatch the Batch tracking Id on Google Analytics
+     */
+    private static final String BATCH_TRACKING_ID = "batch_tracking_id";
+
+    /**
      * Google Analytics internal UTM tag keys
      */
     private static final String SOURCE = "&cs";
@@ -36,6 +41,13 @@ public class BatchEventBuilder extends HitBuilders.EventBuilder {
     public BatchEventBuilder setCampaignName(String name) {
         if (name != null) {
             this.set(CAMPAIGN, name);
+        }
+        return this;
+    }
+
+    public BatchEventBuilder setTrackingId(String trackingId) {
+        if (trackingId != null) {
+            this.set(BATCH_TRACKING_ID, trackingId);
         }
         return this;
     }

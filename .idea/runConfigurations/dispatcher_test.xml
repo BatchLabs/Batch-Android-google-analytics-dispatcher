@@ -1,6 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="dispatcher-test" type="AndroidJUnit" factoryName="Android JUnit">
     <module name="google-analytics-dispatcher" />
+    <extension name="coverage" runner="jacoco" />
     <option name="PACKAGE_NAME" value="com.batch.android.dispatcher.googleanalytics" />
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />
