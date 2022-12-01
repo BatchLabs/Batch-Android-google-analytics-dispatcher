@@ -1,11 +1,11 @@
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.batch.android/google-analytics-dispatcher/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.batch.android/google-analytics-dispatcher)
-[![Github Action](https://github.com/BatchLabs/android-google-analytics-dispatcher/workflows/Android%20CI/badge.svg)](https://github.com/BatchLabs/android-google-analytics-dispatcher/actions?query=workflow%3A%22Android+CI%22)
+[![Github Action](https://github.com/BatchLabs/Batch-Android-google-analytics-dispatcher/workflows/Android%20CI/badge.svg)](https://github.com/BatchLabs/Batch-Android-google-analytics-dispatcher/actions?query=workflow%3A%22Android+CI%22)
 [![SonarCloud Coverage](https://sonarcloud.io/api/project_badges/measure?project=BatchLabs_Batch-Android-google-analytics-dispatcher&metric=coverage)](https://sonarcloud.io/dashboard?id=BatchLabs_Batch-Android-google-analytics-dispatcher)
 
 Batch.com Android Google Analytics Dispatcher
 ==================
 
-![Logo](http://batch-doc.s3.amazonaws.com/logo_batch_192.gif)
+![Logo](https://static.batch.com/documentation/Readmes/logo_batch_full_178.png)
 
 # About
 
